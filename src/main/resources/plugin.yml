@@ -1,0 +1,4 @@
+name: SignAnnouncer
+author: Adam Thomas
+version: 1.0.0
+main: com.aet2505.signannouncer.Main
