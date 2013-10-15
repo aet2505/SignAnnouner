@@ -19,14 +19,17 @@ public class SignChangeTask extends BukkitRunnable
 		{
 			int newIndex = aSign.getCurrentIndex() + 1;
 			
-			if (newIndex == Main.messages.size())
+			if (!Main.messageMap.containsKey(aSign.getSet()))
 			{
-				newIndex = 0;
+				Bukkit.getLogger().severe("That Message set does not exist. Please check your config" + aSign.getSet());
 			}
 			
-			Main.currentIndex = newIndex;
+			if (newIndex == Main.messageMap.get(aSign.getSet()).size())	
+			{
+				newIndex = 0;
+			}	
 			
-			SignMessage message = Main.messages.get(newIndex);
+			SignMessage message = Main.messageMap.get(aSign.getSet()).get(newIndex);
 			
 			aSign.setCurrentIndex(newIndex);
 			

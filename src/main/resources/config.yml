@@ -3,15 +3,29 @@ time-between-change: 60
 
 #Messages Section
 messages:
-    1:
-        line-1: abc #Line 1 of sign
-        line-2: def #Line 2 of sign
-        line-3: ghi #Line 3 of sign
-        line-4: jkl #Line 4 of sign
-        interact-message: Hi #Message sent when sign is right clicked
-    2:
-        line-1: mno
-        line-2: pqr
-        line-3: stu
-        line-4: vwx
-        interact-message: Hello
+    set1:
+        1:
+            line-1: '&cabc' #Line 1 of sign
+            line-2: 'def' #Line 2 of sign
+            line-3: 'ghi' #Line 3 of sign
+            line-4: 'jkl' #Line 4 of sign
+            interact-message: '&fHi' #Message sent when sign is right clicked
+        2:
+            line-1: 'mno'
+            line-2: 'pqr'
+            line-3: 'stu'
+            line-4: 'vwx'
+            interact-message: 'Hello'
+    set2:
+        1:
+            line-1: '1234'
+            line-2: 'qwer'
+            line-3: 'asdf'
+            line-4: 'zxcv'
+            interact-message: 'Hi'
+        2:
+            line-1: 'zxcv'
+            line-2: 'asdf'
+            line-3: 'qwer'
+            line-4: '1234'
+            interact-message: 'Hi'

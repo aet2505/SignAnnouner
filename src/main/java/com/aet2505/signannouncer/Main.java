@@ -1,6 +1,7 @@
 package com.aet2505.signannouncer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -18,10 +19,10 @@ public class Main extends JavaPlugin
 {
 	public static Main plugin;
 	
-	public static int currentIndex = 0;
-	
 	public static int timeBetweenChanges;
-	public static List<SignMessage> messages = new ArrayList<SignMessage>();
+	
+	public static HashMap<String, ArrayList<SignMessage>> messageMap = new HashMap<String, ArrayList<SignMessage>>();
+	
 	public static List<AnnouncerSign> signs = new ArrayList<AnnouncerSign>();
 	
 	private SignDataFile signData;
@@ -56,9 +57,11 @@ public class Main extends JavaPlugin
 		
 		for (String sec : file.getConfigurationSection("signs").getKeys(false))
 		{
+			ArrayList<String> messageSet = new ArrayList<String>();
 			int x, y, z;
 			World world;
 			int index;
+			String set;
 			
 			x = file.getInt("signs." + sec + ".x");
 			y = file.getInt("signs." + sec + ".y");
@@ -68,7 +71,9 @@ public class Main extends JavaPlugin
 			
 			index = file.getInt("signs." + sec + ".index");
 			
-			signs.add(new AnnouncerSign(world, x, y, z, index));
+			set = file.getString("signs." + sec + ".set");
+			
+			signs.add(new AnnouncerSign(world, x, y, z, index, set));
 		}
 		
 	}
@@ -81,19 +86,23 @@ public class Main extends JavaPlugin
 	private void loadConfig()
 	{
 		timeBetweenChanges = getConfig().getInt("time-between-change");
-		
-		for (String sec : getConfig().getConfigurationSection("messages").getKeys(false))
+		for (String set : getConfig().getConfigurationSection("messages").getKeys(false))
 		{
-			String line1, line2, line3, line4, interactMessage;
-			
-			line1 = getConfig().getString("messages." + sec + ".line-1");
-			line2 = getConfig().getString("messages." + sec + ".line-2");
-			line3 = getConfig().getString("messages." + sec + ".line-3");
-			line4 = getConfig().getString("messages." + sec + ".line-4");
-			
-			interactMessage = getConfig().getString("messages." + sec + ".interact-message");
-			
-			messages.add(new SignMessage(line1, line2, line3, line4, interactMessage));
+			ArrayList<SignMessage> messages = new ArrayList<SignMessage>();
+			for (String sec : getConfig().getConfigurationSection("messages." + set).getKeys(false))
+			{
+				String line1, line2, line3, line4, interactMessage;
+				
+				line1 = getConfig().getString("messages." + set + "." + sec + ".line-1");
+				line2 = getConfig().getString("messages." + set + "." + sec + ".line-2");
+				line3 = getConfig().getString("messages." + set + "." + sec + ".line-3");
+				line4 = getConfig().getString("messages." + set + "." + sec + ".line-4");
+				
+				interactMessage = getConfig().getString("messages." + set + "." + sec + ".interact-message");
+				
+				messages.add(new SignMessage(line1, line2, line3, line4, interactMessage));
+			}
+			messageMap.put(set, messages);
 		}
 	}
 
@@ -127,6 +136,7 @@ public class Main extends JavaPlugin
 			file.set("signs." + i + ".z", sign.getBlock().getZ());
 			
 			file.set("signs." + i + ".index", sign.getCurrentIndex());
+			file.set("signs." + i + ".set", sign.getSet());
 			i ++;
 		}
 		

@@ -7,16 +7,18 @@ public class AnnouncerSign
 {
 	Block block;
 	int currentIndex;
+	String set;
 	
-	public AnnouncerSign(Block block, int currentIndex)
+	public AnnouncerSign(Block block, int currentIndex, String set)
 	{
 		this.block = block;
 		this.currentIndex = currentIndex;
+		this.set = set;
 	}
 	
-	public AnnouncerSign(World world, int x, int y, int z, int currentIndex)
+	public AnnouncerSign(World world, int x, int y, int z, int currentIndex, String set)
 	{
-		this(world.getBlockAt(x, y, z), currentIndex);
+		this(world.getBlockAt(x, y, z), currentIndex, set);
 	}
 
 	public Block getBlock()
@@ -32,5 +34,10 @@ public class AnnouncerSign
 	public void setCurrentIndex(int newIndex)
 	{
 		currentIndex = newIndex;
+	}
+	
+	public String getSet()
+	{
+		return set;
 	}
 }

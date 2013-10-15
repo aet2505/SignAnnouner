@@ -3,12 +3,17 @@ package com.aet2505.signannouncer.listeners;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.Sign;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.material.Attachable;
+import org.bukkit.material.MaterialData;
 
 import com.aet2505.signannouncer.Main;
 import com.aet2505.signannouncer.sign.AnnouncerSign;
@@ -35,10 +40,21 @@ public class SignListener implements Listener
 		{
 			evt.getPlayer().sendMessage(ChatColor.RED + "Im sorry you do not have permission to create SignAnnouncements: You are missing the node signannouncer.create");
 			evt.setCancelled(true);
+			evt.getBlock().breakNaturally();
 			return;
 		}
 		
-		SignMessage message = Main.messages.get(Main.currentIndex);
+		if (!Main.messageMap.containsKey(evt.getLine(1)))
+		{
+			evt.getPlayer().sendMessage(ChatColor.RED + "That Message set does not exist. Please check you typed it correctly");
+			evt.setCancelled(true);
+			evt.getBlock().breakNaturally();
+			return;
+		}
+		
+		Main.signs.add(new AnnouncerSign(evt.getBlock(), 0, evt.getLine(1)));
+		
+		SignMessage message = Main.messageMap.get(evt.getLine(1)).get(0);
 		
 		evt.setLine(0, message.getLine1());
 		evt.setLine(1, message.getLine2());
@@ -46,8 +62,6 @@ public class SignListener implements Listener
 		evt.setLine(3, message.getLine4());
 		
 		evt.getPlayer().sendMessage(ChatColor.GREEN + "You have sucessfully created a SignAnnouncement");
-		
-		Main.signs.add(new AnnouncerSign(evt.getBlock(), Main.currentIndex));
 	}
 	
 	@EventHandler
@@ -73,6 +87,22 @@ public class SignListener implements Listener
 	}
 	
 	@EventHandler
+	public void handle(BlockPhysicsEvent evt) {
+	  Block block = evt.getBlock();
+	  if (block.getType() == Material.WALL_SIGN || block.getType() == Material.SIGN_POST) {
+	    Sign sign = (Sign) block.getState();
+	    if (isSignAnnouncer(block))
+	    {
+		    Block attachedBlock = getAttachedBlock(block);
+		    if (attachedBlock.getType() == Material.AIR) {
+		    	attachedBlock.setType(Material.BEDROCK);
+		    	evt.setCancelled(true);
+		    }
+	    }
+	  }
+	}
+	
+	@EventHandler
 	public void handle(PlayerInteractEvent evt)
 	{
 		if (evt.getAction().equals(Action.RIGHT_CLICK_BLOCK))
@@ -83,9 +113,10 @@ public class SignListener implements Listener
 				if (isSignAnnouncer(block))
 				{
 					AnnouncerSign aSign = getSignAnnouncer(block);
+					String set = aSign.getSet();
 					int index = aSign.getCurrentIndex();
 					
-					evt.getPlayer().sendMessage(Main.messages.get(index).getInteractMessage());
+					evt.getPlayer().sendMessage(Main.messageMap.get(set).get(index).getInteractMessage());
 				}
 			}
 		}
@@ -103,6 +134,15 @@ public class SignListener implements Listener
 		return false;
 	}
 	
+    private Block getAttachedBlock(Block b) {
+        MaterialData m = b.getState().getData();
+        BlockFace face = BlockFace.DOWN;
+        if (m instanceof Attachable) {
+            face = ((Attachable) m).getAttachedFace();
+        }
+        return b.getRelative(face);
+    }
+    
 	private AnnouncerSign getSignAnnouncer(Block block)
 	{
 		for (AnnouncerSign sign : Main.signs)
